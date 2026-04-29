@@ -2,30 +2,89 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>极简密码生成器</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f7f6; }
-        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-        #password { font-size: 1.5rem; color: #333; margin: 1.5rem 0; padding: 10px; background: #eee; border-radius: 4px; word-break: break-all; min-height: 1.5em; }
-        button { background: #2ea44f; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-        button:hover { background: #2c974b; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f7f6; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 350px; }
+        h2 { margin-top: 0; color: #333; font-size: 1.25rem; }
+        #password { 
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem; 
+            color: #222; 
+            margin: 1.5rem 0; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border: 1px solid #eee;
+            border-radius: 8px; 
+            word-break: break-all; 
+            min-height: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+        button { 
+            flex: 1;
+            padding: 12px; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .gen-btn { background: #2ea44f; color: white; }
+        .gen-btn:hover { background: #2c974b; }
+        .copy-btn { background: #0366d6; color: white; }
+        .copy-btn:hover { background: #0255b3; }
+        button:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>🔐 随机密码生成器</h2>
-        <div id="password">点击下方生成</div>
-        <button onclick="generate()">生成新密码</button>
+        <div id="password">点击生成强密码</div>
+        <div class="btn-group">
+            <button class="gen-btn" onclick="generate()">生成密码</button>
+            <button class="copy-btn" onclick="copyPassword()">复制</button>
+        </div>
     </div>
 
     <script>
         function generate() {
+            const length = 16;
             const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             let retVal = "";
-            for (let i = 0; i < 16; ++i) {
-                retVal += charset.charAt(Math.floor(Math.random() * charset.length));
+            
+            // 使用加密安全级别的随机数生成器
+            const array = new Uint32Array(length);
+            window.crypto.getRandomValues(array);
+
+            for (let i = 0; i < length; i++) {
+                retVal += charset.charAt(array[i] % charset.length);
             }
-            document.getElementById("password").innerText = retVal;
+            
+            const pwdDisplay = document.getElementById("password");
+            pwdDisplay.innerText = retVal;
+            pwdDisplay.style.color = "#222";
+        }
+
+        function copyPassword() {
+            const pwd = document.getElementById("password").innerText;
+            if (pwd === "点击生成强密码" || pwd === "已复制！") return;
+            
+            navigator.clipboard.writeText(pwd).then(() => {
+                const pwdDisplay = document.getElementById("password");
+                const originalPwd = pwdDisplay.innerText;
+                
+                pwdDisplay.innerText = "已复制！";
+                pwdDisplay.style.color = "#2ea44f";
+                
+                setTimeout(() => {
+                    pwdDisplay.innerText = originalPwd;
+                    pwdDisplay.style.color = "#222";
+                }, 1000);
+            });
         }
     </script>
 </body>
